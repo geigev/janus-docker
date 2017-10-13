@@ -36,3 +36,6 @@ docker-compose build
 docker-compose up
 ```
 
+## But I want to use different transport/plugin etc
+No Problem! Just edit the dockerfile and use the installation guide in https://github.com/meetecho/janus-gateway as a reference
+
