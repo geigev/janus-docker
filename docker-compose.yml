@@ -6,7 +6,7 @@ services:
       context: ./nginx
       dockerfile: Dockerfile.dev
     volumes:
-      - ./f2f-gate/html:/app/dist
+      - ./janus-gateway/html:/app/dist
     ports:
       - "80:80"
       - "443:443"
