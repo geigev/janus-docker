@@ -1,0 +1,18 @@
+version: "3.2"
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./f2f-gate/html:/app/dist
+    ports:
+      - "80:80"
+      - "443:443"
+  janus:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8088:8088"

@@ -1,0 +1,8 @@
+FROM nginx
+
+COPY nginx.conf /etc/nginx/
+COPY mime.types /etc/nginx/
+COPY keys /run/
+
+
+CMD nginx -g 'daemon off;'
