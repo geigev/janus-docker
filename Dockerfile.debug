@@ -37,7 +37,7 @@ RUN apt-get update && apt-get install -y \
     && make \
     && make install \
     && make configs \
-    && cp /app/janus.transport.http.cfg /opt/janus/etc/janus \
+    && cp -a /app/janus-config/. /opt/janus/etc/janus/ \
     && cp /opt/janus/bin/janus /usr/local/bin 
 
 # Define the default start-up command
