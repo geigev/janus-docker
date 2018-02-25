@@ -3,6 +3,8 @@ COPY . /app
 RUN chmod -R -x /app/janus-gateway
 WORKDIR /app
 RUN apt-get update && apt-get install -y \
+    libgnutls-dev \
+    gtk-doc-tools \
     libjansson-dev \
     libnice-dev \
     libglib2.0-dev \
@@ -20,6 +22,11 @@ RUN apt-get update && apt-get install -y \
     valgrind \
     libasan1 \
     && rm -rf /var/lib/apt/lists/* \
+
+    # Install libnice
+    && git clone https://github.com/libnice/libnice.git \
+    && cd libnice && git checkout fb2f1f77a31baa91968fc81c205f980b6913f403 && sh autogen.sh && ./configure --prefix=/usr --disable-gtk-doc --disable-static --without-gstreamer-0.10 && make && make install \
+    && cd /app && rm -rf /app/libnice \
 
     #Install Libsrtp
 

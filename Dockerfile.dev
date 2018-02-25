@@ -1,8 +1,10 @@
-FROM ubuntu:16.04
+FROM ubuntu:16.04 AS build
 COPY . /app
 RUN chmod -R -x /app/janus-gateway
 WORKDIR /app
 RUN apt-get update && apt-get install -y \
+    libgnutls-dev \
+    gtk-doc-tools \
     libjansson-dev \
     libnice-dev \
     libglib2.0-dev \
@@ -17,6 +19,12 @@ RUN apt-get update && apt-get install -y \
     cmake \
     && rm -rf /var/lib/apt/lists/* \
 
+
+    # Install libnice
+    && git clone https://github.com/libnice/libnice.git \
+    && cd libnice && git checkout fb2f1f77a31baa91968fc81c205f980b6913f403 && sh autogen.sh && ./configure --prefix=/usr --disable-gtk-doc --disable-static --without-gstreamer-0.10 && make && make install \
+    && cd /app && rm -rf /app/libnice \
+
     #Install Libsrtp
 
     && mkdir libsrtp && cd libsrtp \
@@ -25,11 +33,11 @@ RUN apt-get update && apt-get install -y \
     && cd libsrtp-1.5.4 \
     && ./configure --prefix=/usr --enable-openssl \
     && make shared_library && make install \
-    && cd /app && rm -rf /app/libsrtp \
+    && cd /app && rm -rf /app/libsrtp 
 
     #Install Janus
 
-    && cd /app/janus-gateway && sh autogen.sh && ./configure --prefix=/opt/janus --disable-rabbitmq --disable-mqtt --disable-websockets --disable-unix-sockets --disable-sample-event-handler --disable-turn-rest-api \
+RUN cd /app/janus-gateway && sh autogen.sh && ./configure --prefix=/opt/janus --disable-rabbitmq --disable-mqtt --disable-websockets --disable-unix-sockets --disable-sample-event-handler --disable-turn-rest-api \
     && make \
     && make install \
     && make configs \
