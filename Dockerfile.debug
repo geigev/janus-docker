@@ -10,6 +10,7 @@ ARG BUILD_SRC="/usr/local/src"
 ARG JANUS_WITH_POSTPROCESSING="0"
 ARG JANUS_WITH_BORINGSSL="0"
 ARG JANUS_WITH_DOCS="0"
+ARG JANUS_WITH_LUA="0"
 ARG JANUS_WITH_REST="1"
 ARG JANUS_WITH_DATACHANNELS="0"
 ARG JANUS_WITH_WEBSOCKETS="1"
@@ -61,6 +62,7 @@ RUN \
     export JANUS_WITH_POSTPROCESSING="${JANUS_WITH_POSTPROCESSING}"\
     && export JANUS_WITH_BORINGSSL="${JANUS_WITH_BORINGSSL}"\
     && export JANUS_WITH_DOCS="${JANUS_WITH_DOCS}"\
+    && export JANUS_WITH_LUA="${JANUS_WITH_LUA}"\
     && export JANUS_WITH_REST="${JANUS_WITH_REST}"\
     && export JANUS_WITH_DATACHANNELS="${JANUS_WITH_DATACHANNELS}"\
     && export JANUS_WITH_WEBSOCKETS="${JANUS_WITH_WEBSOCKETS}"\
@@ -73,6 +75,7 @@ RUN \
     && if [ $JANUS_WITH_POSTPROCESSING = "1" ]; then export JANUS_CONFIG_OPTIONS="$JANUS_CONFIG_OPTIONS --enable-post-processing"; fi \
     && if [ $JANUS_WITH_BORINGSSL = "1" ]; then export JANUS_BUILD_DEPS_DEV="$JANUS_BUILD_DEPS_DEV golang-go" && export JANUS_CONFIG_OPTIONS="$JANUS_CONFIG_OPTIONS --enable-boringssl --enable-dtls-settimeout"; fi \
     && if [ $JANUS_WITH_DOCS = "1" ]; then export JANUS_BUILD_DEPS_DEV="$JANUS_BUILD_DEPS_DEV doxygen graphviz" && export JANUS_CONFIG_OPTIONS="$JANUS_CONFIG_OPTIONS --enable-docs"; fi \
+    && if [ $JANUS_WITH_LUA = "0" ]; then export JANUS_CONFIG_OPTIONS="$JANUS_CONFIG_OPTIONS --disable-plugin-lua"; fi \
     && if [ $JANUS_WITH_REST = "1" ]; then export JANUS_BUILD_DEPS_DEV="$JANUS_BUILD_DEPS_DEV libmicrohttpd-dev"; else export JANUS_CONFIG_OPTIONS="$JANUS_CONFIG_OPTIONS --disable-rest"; fi \
     && if [ $JANUS_WITH_DATACHANNELS = "0" ]; then export JANUS_CONFIG_OPTIONS="$JANUS_CONFIG_OPTIONS --disable-data-channels"; fi \
     && if [ $JANUS_WITH_WEBSOCKETS = "0" ]; then export JANUS_CONFIG_OPTIONS="$JANUS_CONFIG_OPTIONS --disable-websockets"; fi \
@@ -167,6 +170,7 @@ RUN \
     && DEBIAN_FRONTEND=noninteractive apt-get -y clean \
     && DEBIAN_FRONTEND=noninteractive apt-get -y autoclean \
     && DEBIAN_FRONTEND=noninteractive apt-get -y autoremove \
+    && chmod +x /usr/local/sbin/apt-clean \
     && DEBIAN_FRONTEND=noninteractive apt-clean --aggressive \
     && rm -rf /usr/share/locale/* \
     && rm -rf /var/cache/debconf/*-old \
