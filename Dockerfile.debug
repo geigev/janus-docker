@@ -1,5 +1,5 @@
 # set base image debian jessie
-FROM tklx/base:0.1.1 AS build
+FROM debian:jessie-slim
 
 
 # docker build environments
@@ -51,7 +51,7 @@ ARG JANUS_BUILD_DEPS_EXT="\
     ca-certificates \
     curl \
     "
-
+COPY apt-clean /usr/local/sbin/apt-clean
 COPY janus-config ${BUILD_SRC}/janus-config
 COPY janus-gateway ${BUILD_SRC}/janus-gateway
 COPY keys /opt/keys
