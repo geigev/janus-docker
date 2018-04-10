@@ -1,5 +1,5 @@
 # set base image debian jessie
-FROM debian:jessie-slim
+FROM debian:jessie-slim as base
 
 
 # docker build environments
@@ -15,8 +15,8 @@ ARG JANUS_WITH_REST="1"
 ARG JANUS_WITH_DATACHANNELS="0"
 ARG JANUS_WITH_WEBSOCKETS="1"
 ARG JANUS_WITH_MQTT="0"
-ARG JANUS_WITH_PFUNIX="0"
-ARG JANUS_WITH_RABBITMQ="0"
+ARG JANUS_WITH_PFUNIX="1"
+ARG JANUS_WITH_RABBITMQ="1"
 # https://goo.gl/dmbvc1
 ARG JANUS_WITH_FREESWITCH_PATCH="0"
 ARG JANUS_CONFIG_DEPS="\
@@ -131,8 +131,8 @@ RUN \
     && cd ${BUILD_SRC}/rabbitmq-c \
     && git submodule init \
     && git submodule update \
-    && autoreconf -i \
-    && ./configure --prefix=/usr \
+    && mkdir build && cd build \
+    && cmake -DCMAKE_INSTALL_PREFIX=/usr .. \
     && make \
     && make install \
     ; fi \
