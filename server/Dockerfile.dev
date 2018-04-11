@@ -1,0 +1,23 @@
+#FROM debian:wheezy as builder
+#RUN mkdir /keys
+#RUN apt-get update && \
+#    apt-get install -y openssl && \
+#    openssl req -x509 -nodes -newkey rsa:4096 -keyout /keys/key.pem -out /keys/cert.pem -days 1000 -subj "/C=GB/ST=London/L=London/O=Global/OU=IT Department/CN=f2f.live"
+
+FROM node:8.5.0-wheezy
+
+#COPY --from=builder keys keys
+
+RUN mkdir /app
+WORKDIR /app
+ENV NODE_ENV development	
+
+RUN npm install nodemon -g	
+
+COPY package.json /app
+RUN npm install --production
+
+
+
+CMD [ "nodemon", "-L", "index.js" ]	
+

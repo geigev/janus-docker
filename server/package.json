@@ -1,0 +1,41 @@
+{
+  "name": "container",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "envcheck": "node envcheck.js",
+    "test": "node_modules/.bin/tape container/**/*.spec.js | xargs -r node_modules/.bin/tap-spec",
+    "eslint": "node node_modules/eslint/bin/eslint.js --ignore-path .eslintignore -c .eslintrc.js ./",
+    "start": "node server.js",
+    "precommit": "npm-run-all --parallel eslint test"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "atob": "2.0.3",
+    "base64url": "2.0.0",
+    "body-parser": "1.15.2",
+    "cookie-parser": "1.4.3",
+    "crypto": "0.0.3",
+    "express": "4.14.0",
+    "http-proxy": "1.16.2",
+    "jsonwebtoken": "7.2.1",
+    "kubernetes-client": "^5.1.0",
+    "lodash": "4.17.4",
+    "method-override": "2.3.9",
+    "request": "2.81.0",
+    "request-promise": "4.2.1"
+  },
+  "devDependencies": {
+    "dotenv": "4.0.0",
+    "eslint": "3.19.0",
+    "eslint-config-f2f-base": "2.1.2",
+    "eslint-plugin-import": "2.8.0",
+    "nodemon": "1.11.0",
+    "npm-run-all": "4.1.1",
+    "tap-spec": "4.1.1",
+    "tape": "4.8.0",
+    "underscore": "1.8.3"
+  }
+}

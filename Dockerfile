@@ -15,8 +15,8 @@ ARG JANUS_WITH_REST="1"
 ARG JANUS_WITH_DATACHANNELS="0"
 ARG JANUS_WITH_WEBSOCKETS="1"
 ARG JANUS_WITH_MQTT="0"
-ARG JANUS_WITH_PFUNIX="0"
-ARG JANUS_WITH_RABBITMQ="0"
+ARG JANUS_WITH_PFUNIX="1"
+ARG JANUS_WITH_RABBITMQ="1"
 # https://goo.gl/dmbvc1
 ARG JANUS_WITH_FREESWITCH_PATCH="0"
 ARG JANUS_CONFIG_DEPS="\
@@ -48,13 +48,11 @@ ARG JANUS_BUILD_DEPS_EXT="\
     ca-certificates \
     curl \
     "
-
-# build janus-gateway
+COPY apt-clean /usr/local/sbin/apt-clean
 COPY janus-config ${BUILD_SRC}/janus-config
 COPY janus-gateway ${BUILD_SRC}/janus-gateway
 COPY keys /opt/keys
 COPY .git ${BUILD_SRC}/.git
-
 RUN \
 # init build env & install apt deps
     export JANUS_WITH_POSTPROCESSING="${JANUS_WITH_POSTPROCESSING}"\
@@ -138,21 +136,43 @@ RUN \
     && make \
     && make install \
     ; fi \
+# build janus-gateway
+    # && git clone https://github.com/meetecho/janus-gateway.git ${BUILD_SRC}/janus-gateway \
     && if [ $JANUS_WITH_FREESWITCH_PATCH = "1" ]; then curl -fSL https://raw.githubusercontent.com/krull/docker-misc/master/init_fs/tmp/janus_sip.c.patch -o ${BUILD_SRC}/janus-gateway/plugins/janus_sip.c.patch && cd ${BUILD_SRC}/janus-gateway/plugins && patch < janus_sip.c.patch; fi \
     && cd ${BUILD_SRC}/janus-gateway \
     && ./autogen.sh \
-    && ./configure ${JANUS_CONFIG_DEPS} $JANUS_CONFIG_OPTIONS 
-
-
-RUN \
-    cd ${BUILD_SRC}/janus-gateway \
+    && ./configure ${JANUS_CONFIG_DEPS} $JANUS_CONFIG_OPTIONS \
     && make \
     && make install \
     && make configs \
     && cp -a ${BUILD_SRC}/janus-config/. /opt/janus/etc/janus/ \
 # folder ownership
-    && chown -R janus:janus /opt/janus
+    && chown -R janus:janus /opt/janus \
+# build cleanup
+    && cd ${BUILD_SRC} \
+    && if [ $JANUS_WITH_BORINGSSL = "1" ]; then rm -rf boringssl; fi \
+    && if [ $JANUS_WITH_DATACHANNELS = "1" ]; then rm -rf usrsctp; fi \
+    && if [ $JANUS_WITH_WEBSOCKETS = "1" ]; then rm -rf libwebsockets; fi \
+    && if [ $JANUS_WITH_MQTT = "1" ]; then rm -rf paho.mqtt.c; fi \
+    && if [ $JANUS_WITH_RABBITMQ = "1" ]; then rm -rf rabbitmq-c; fi \
+    && rm -rf \
+        v2.0.0.tar.gz \
+        libsrtp-2.0.0 \
+        janus-gateway \
+        janus-config \
+        .git \
+    && DEBIAN_FRONTEND=noninteractive apt-get -y --auto-remove purge ${JANUS_BUILD_DEPS_EXT} \
+    && DEBIAN_FRONTEND=noninteractive apt-get -y clean \
+    && DEBIAN_FRONTEND=noninteractive apt-get -y autoclean \
+    && DEBIAN_FRONTEND=noninteractive apt-get -y autoremove \
+    && chmod +x /usr/local/sbin/apt-clean \
+    && DEBIAN_FRONTEND=noninteractive apt-clean --aggressive \
+    && rm -rf /usr/share/locale/* \
+    && rm -rf /var/cache/debconf/*-old \
+    && rm -rf /usr/share/doc/* \
+    && rm -rf /var/lib/apt/*
 
 USER janus
 
 CMD ["/opt/janus/bin/janus"]
+
